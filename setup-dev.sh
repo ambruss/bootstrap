@@ -2,7 +2,7 @@
 set -euo pipefail
 test -z "${TRACE:-}" || set -x
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1091
 . "$(dirname "$0")/common.sh"
 
 SETUP=dev
@@ -13,7 +13,7 @@ Automated development environment setup on Elementary OS 5.1.
 Examples:
   $0 --include python
   $0 --include jq=1.6 --force
-  $0 --exclude sublime
+  $0 --exclude slack
 
 Options:
   -l, --list                List available modules
@@ -105,7 +105,7 @@ main() {
 list() {
     echo "Available modules:"
     for MOD in "${MODULES[@]}"; do
-        echo "  - $MOD"
+        test -z "$MOD" || echo "  - $MOD"
     done
 }
 

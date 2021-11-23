@@ -27,7 +27,7 @@ Automated development environment setup on Elementary OS 5.1.
 Examples:
   ./setup-dev.sh --include python
   ./setup-dev.sh --include jq=1.6 --force
-  ./setup-dev.sh --exclude sublime
+  ./setup-dev.sh --exclude slack
 
 Options:
   -l, --list                List available modules

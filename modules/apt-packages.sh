@@ -13,7 +13,7 @@ install_dev() {
         sudo apt-get update -qq
         sudo apt-get install -qqy software-properties-common
     fi
-    sudo apt-add-repository -nsy ppa:philip.scott/elementary-tweaks
+    sudo apt-add-repository -nsy ppa:philip.scott/pantheon-tweaks
     sudo apt-add-repository -nsy ppa:yunnxx/elementary
     install_common
     sudo sh -c "printf '[User]\nSystemAccount=true\n' >/var/lib/AccountsService/users/libvirt-qemu"
@@ -70,10 +70,10 @@ APT_PACKAGES=(
 # additional apt packages for the dev setup
 APT_PACKAGES_DEV=(
     bridge-utils
+    dh-autoreconf
     dkms
     dmg2img
     docbook-xsl-ns
-    elementary-tweaks
     gfortran
     gimp
     indicator-application
@@ -81,7 +81,7 @@ APT_PACKAGES_DEV=(
     libblas-dev
     libbz2-dev
     libguestfs-tools
-    libhdf5-100
+    libhdf5-103
     libhdf5-dev
     liblapack-dev
     libncurses5-dev
@@ -90,10 +90,12 @@ APT_PACKAGES_DEV=(
     librsvg2-bin
     libsqlite3-dev
     libtool
-    libvirt-bin
+    libvirt-dev
+    linux-headers-"$(uname -r)"
     llvm
     meld
     octave
+    pantheon-tweaks
     qemu
     qemu-kvm
     swig

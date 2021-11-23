@@ -10,7 +10,7 @@ is_installed() {
 install() {
     ! $FORCE || rm -rf "$VENV"
     if [ "$SETUP" = dev ]; then
-        PY_BIN=$(find /usr/local/bin -name 'python*' | grep -v config | sort | tail -n1)
+        PY_BIN=$(find /usr/bin -name 'python*' | grep -v config | sort -V | tail -n1)
     else
         PY_BIN=$(command -v python3)
     fi
@@ -72,7 +72,6 @@ VENV_PACKAGES_DEV=(
     "pandas"
     "pandoc"
     "pendulum"
-    "pip-compile-multi"
     "pipenv"
     "poetry"
     "pre-commit"
@@ -80,7 +79,6 @@ VENV_PACKAGES_DEV=(
     "pyjq"
     "pylint"
     "pynetdicom"
-    "pynvim"
     "pyqt5"
     "pytest"
     "pytest-cov"
@@ -96,7 +94,6 @@ VENV_PACKAGES_DEV=(
     "sqlalchemy"
     "typer[all]"
     "yamllint"
-    "yapf"
     "yappi"
 )
 

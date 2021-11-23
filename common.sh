@@ -19,7 +19,7 @@ cdir() { test -d "$1" || mkdir -p "$1"; cd "$1" || fail "Couldn't cd into $1"; }
 clone() { git clone --depth 1 "https://github.com/$1.git" "${@:2}"; }
 
 # logging helpers
-log() { printf "%s${EOL:-\n}" "$*" >&2; }
+log() { printf "%b${EOL:-\n}" "$*" >&2; }
 C_INFO=$(tput setaf 2)
 C_WARN=$(tput setaf 3)
 C_ERROR=$(tput setaf 1)
@@ -69,12 +69,6 @@ load_dotenv() {(
         eval "$(ssh-agent)"
         ssh-add ~/.ssh/id_rsa
     fi
-    if [ -n "${SUBLIME_KEY:-}" ]; then
-        info "Writing sublime license file"
-        LICENSE_FILE=~/.config/sublime-text-3/Local/License.sublime_license
-        mkdir -p "$(dirname "$LICENSE_FILE")"
-        echo "$SUBLIME_KEY" >"$LICENSE_FILE"
-    fi
     if [ -n "${ZSH_PROFILE:-}" ]; then
         info "Writing zsh profile"
         ZSH_FILE=~/.oh-my-zsh/custom/custom.zsh
@@ -85,7 +79,8 @@ load_dotenv() {(
 
 install_module() {(  # install item from ./modules
     MOD=${1/=*/}
-    VER=$(echo "$1" | grep = | sed "s/.*=//" || true)
+    # shellcheck disable=SC2030
+    VER=$(echo "$1" | grep "=" | sed "s/.*=//" || true)
     # shellcheck disable=SC1090
     . "$DIR/modules/$MOD.sh"
     if $FORCE || ! is_installed; then
@@ -98,10 +93,12 @@ install_module() {(  # install item from ./modules
 )}
 
 latest() {  # get latest version string from a release page
+    # shellcheck disable=SC2031
     test -z "${VER:-}" || { echo "$VER" && return; }
     URL=$1
     REGEX="${2:-tag/$VERSION_RE}"
-    echo "$1" | grep -q "^http" || URL=https://github.com/$1/releases
+    # TODO jira tag/vs/release
+    echo "$1" | grep -q "^http" || URL=https://github.com/$1/tags
     VER=$(curl "$URL" \
         | grep -o "[^0-9.]*${VERSION_RE}[^0-9.]*" \
         | grep -v "$VERSION_RE-(alpha|beta|dev|rc)" \
@@ -133,7 +130,7 @@ on_start() {  # create and use tempdir and register exit hook
 on_exit() {  # clean up tempdir, log exit status and kill the sudo loop
     CODE=$?
     if [ "$CODE" = 0 ]; then
-        info "$(basename $0) finished without errors"
+        info "$(basename "$0") finished without errors"
     else
         error "Command returned $CODE\nRun with TRACE=1 to debug"
     fi

@@ -17,5 +17,5 @@ install() {
     make "-j$(nproc)"
     sudo make install
     sudo ldconfig
-    cp -r /usr/local/lib/*gdcm* "$VENV/lib/python*/site-packages"
+    cp -r /usr/local/lib/*gdcm* "$VENV"/lib/python*/site-packages
 }

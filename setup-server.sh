@@ -2,7 +2,7 @@
 set -euo pipefail
 test -z "${TRACE:-}" || set -x
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1091
 . "$(dirname "$0")/common.sh"
 
 SETUP=server

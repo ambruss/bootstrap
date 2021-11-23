@@ -14,9 +14,9 @@ install() {
     ./configure \
         --enable-optimizations \
         --enable-shared \
-        --prefix=/usr/local \
+        --prefix=/usr \
         --with-ensurepip=install \
-        LDFLAGS="-Wl,-rpath /usr/local/lib"
+        LDFLAGS="-Wl,-rpath /usr/lib"
     make "-j$(nproc)"
     sudo make altinstall
     sudo rm -rf "../Python-$PY_VER"

@@ -10,3 +10,19 @@ install() {
     curl -o "$BIN/jira" "$JIRA_URL"
     chmod +x "$BIN/jira"
 }
+
+
+RC="$(cat <<'RC'
+#!/usr/bin/env bash
+cat <<EOF
+endpoint: https://flywheelio.atlassian.net
+login: ambrussimon@flywheel.io
+user: ambrussimon
+password-source: keyring
+editor: micro
+EOF
+case $JIRA_OPERATION in
+    list) echo "template: table";;
+esac
+RC
+)"
