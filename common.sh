@@ -97,7 +97,8 @@ latest() {  # get latest version string from a release page
     test -z "${VER:-}" || { echo "$VER" && return; }
     URL=$1
     REGEX="${2:-tag/$VERSION_RE}"
-    # TODO jira tag/vs/release
+    # TODO always strip v
+    # TODO github tag vs release (eg. gojira)
     echo "$1" | grep -q "^http" || URL=https://github.com/$1/tags
     VER=$(curl "$URL" \
         | grep -o "[^0-9.]*${VERSION_RE}[^0-9.]*" \

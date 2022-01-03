@@ -18,14 +18,11 @@ EXTENSIONS=(
     christian-kohler.path-intellisense
     eamodio.gitlens
     ecmel.vscode-html-css
-    fnando.linter
-    matangover.mypy
-    mikestead.dotenv
+    Gruntfuggly.todo-tree
     ms-azuretools.vscode-docker
     ms-kubernetes-tools.vscode-kubernetes-tools
     ms-python.python
     ms-python.vscode-pylance
-    ms-vscode-remote.remote-containers
     redhat.vscode-yaml
     Tim-Koehler.helm-intellisense
     Tyriar.sort-lines

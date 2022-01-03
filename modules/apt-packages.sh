@@ -60,6 +60,7 @@ APT_PACKAGES=(
     ncdu
     pkg-config
     software-properties-common
+    tig
     tmux
     tree
     wget
@@ -76,6 +77,8 @@ APT_PACKAGES_DEV=(
     docbook-xsl-ns
     gfortran
     gimp
+    gnome-disk-utility
+    gparted
     indicator-application
     kazam
     libblas-dev

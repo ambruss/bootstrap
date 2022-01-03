@@ -27,9 +27,10 @@ configure() {
     sed_ipy c.InteractiveShellApp.exec_lines "['%autoreload 2']"
     sed_ipy c.TerminalIPythonApp.display_banner False
     sed_ipy c.TerminalInteractiveShell.confirm_exit False
-    sed_ipy c.TerminalInteractiveShell.editor "'nano'"
+    sed_ipy c.TerminalInteractiveShell.editor "'micro'"
     sed_ipy c.TerminalInteractiveShell.term_title_format "'ipy {cwd}'"
     sed_ipy c.Completer.greedy True
+    poetry config virtualenvs.in-project true
 }
 
 VENV_PACKAGES=(
