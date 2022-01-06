@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    cmd rg
-}
+is_installed() { cmd rg; }
 
 install() {
-    RG_VER=$(latest BurntSushi/ripgrep)
-    RG_DIR=ripgrep-$RG_VER-x86_64-unknown-linux-musl
-    RG_URL=https://github.com/BurntSushi/ripgrep/releases/download/$RG_VER/$RG_DIR.tar.gz
-    curl "$RG_URL" | tar xz
-    mv -f "$RG_DIR/rg" "$BIN"
+    URL=$(gh_asset BurntSushi/ripgrep "ripgrep-.*-x86_64-unknown-linux-musl.tar.gz")
+    curl "$URL" | tar xz
+    mv -f ripgrep-*/rg "$BIN"
 }

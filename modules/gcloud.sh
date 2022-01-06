@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    test -x ~/google-cloud-sdk/bin/gcloud
-}
+is_installed() { cmd gcloud; }
 
 install() {
+    export CLOUDSDK_INSTALL_DIR=$PREFIX
+    export CLOUDSDK_CORE_DISABLE_PROMPTS=1
     export CLOUDSDK_PYTHON=/usr/bin/python3.6
-    cdir "$LOCAL"
-    curl https://sdk.cloud.google.com | bash -s -- --disable-prompts
+    rm -rf "$CLOUDSDK_INSTALL_DIR/google-cloud-sdk"
+    curl https://sdk.cloud.google.com | bash
+    ln -sf "$CLOUDSDK_INSTALL_DIR"/google-cloud-sdk/bin/* "$BIN"
 }

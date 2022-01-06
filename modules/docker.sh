@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    cmd docker
-}
+is_installed() { cmd docker; }
 
 install() {
     curl https://get.docker.com | env -i sh

@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    cmd gdcmdump
-}
+OPTIONAL=true
+
+is_installed() { cmd gdcmdump; }
 
 install() {
-    VER=$(latest malaterre/GDCM | sed 's/v//')
-    URL="https://github.com/malaterre/GDCM/archive/v$VER.tar.gz"
+    URL="$(gh_tar malaterre/GDCM)"
     curl "$URL" | tar xz
-    cdir "GDCM-$VER"
+    cd GDCM-*
     cmake \
         -DGDCM_BUILD_APPLICATIONS=1 \
         -DGDCM_BUILD_SHARED_LIBS=1 \

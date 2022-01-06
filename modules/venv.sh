@@ -9,18 +9,10 @@ is_installed() {
 
 install() {
     ! $FORCE || rm -rf "$VENV"
-    if [ "$SETUP" = dev ]; then
-        PY_BIN=$(find /usr/bin -name 'python*' | grep -v config | sort -V | tail -n1)
-    else
-        PY_BIN=$(command -v python3)
-    fi
+    PY_BIN=$(command -v python3)
     test -d "$VENV" || "$PY_BIN" -m venv "$VENV"
     "$VENV/bin/pip" install -U pip setuptools wheel
     "$VENV/bin/pip" install -U "${VENV_PACKAGES[@]}"
-    configure
-}
-
-configure() {
     "$VENV/bin/ipython" profile create
     sed_ipy() { sed -i "s|^# ?$1.*|$1 = $2|" ~/.ipython/profile_default/ipython_config.py; }
     sed_ipy c.InteractiveShellApp.extensions "['autoreload']"
@@ -34,50 +26,51 @@ configure() {
 }
 
 VENV_PACKAGES=(
+    "ansible"
+    "apscheduler"
+    "asciinema"
+    "awscli"
+    "bokeh"
     "bs4"
+    "docker"
     "docker-compose"
-    "fuzzywuzzy[speedup]"
     "httpie"
     "icdiff"
     "invoke"
     "ipython"
-    "pillow"
+    "numpy"
+    "pandas"
+    "pandoc"
+    "pipenv"
+    "poetry"
+    "pre-commit"
     "psutil"
     "pyyaml"
     "requests"
     "requests-html"
-    "scrapy"
+    "seaborn"
     "sh"
+    "yappi"
     "yq"
 )
 
-VENV_PACKAGES_DEV=(
-    "ansible"
-    "apscheduler"
+! $ALL || VENV_PACKAGES+=(
     "arrow"
-    "asciinema"
-    "awscli"
     "black"
-    "bokeh"
     "delorean"
     "dicomweb-client"
     "fastapi"
     "flake8"
     "flake8-bugbear"
+    "fuzzywuzzy[speedup]"
     "isort"
     "jedi"
     "keras"
     "matplotlib"
     "mypy"
-    "numpy"
-    "pandas"
-    "pandoc"
     "pendulum"
-    "pipenv"
-    "poetry"
-    "pre-commit"
+    "pillow"
     "pydicom"
-    "pyjq"
     "pylint"
     "pynetdicom"
     "pyqt5"
@@ -95,9 +88,4 @@ VENV_PACKAGES_DEV=(
     "sqlalchemy"
     "typer[all]"
     "yamllint"
-    "yappi"
 )
-
-if [ "$SETUP" = dev ]; then
-    VENV_PACKAGES+=("${VENV_PACKAGES_DEV[@]}")
-fi

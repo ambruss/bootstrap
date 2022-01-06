@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    cmd pandoc
-}
+OPTIONAL=true
+
+is_installed() { cmd pandoc; }
 
 install() {
-    VER=$(latest jgm/pandoc)
-    DEB=pandoc-$VER-1-amd64.deb
-    URL=https://github.com/jgm/pandoc/releases/download/$VER/$DEB
+    URL=$(gh_asset jgm/pandoc "pandoc-.*-amd64.deb")
     curl -O "$URL"
-    sudo dpkg --install "$DEB" || sudo apt-get install -fqqy
+    sudo dpkg --install pandoc-*.deb || sudo apt-get install -fqqy
     # TODO first-run
 }

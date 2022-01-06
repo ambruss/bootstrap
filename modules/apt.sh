@@ -6,79 +6,48 @@ is_installed() {
     test -z "$NEW" || return 1
 }
 
-install() { "install_$SETUP"; }
-
-install_dev() {
+install() {
     if ! cmd apt-add-repository; then
-        sudo apt-get update -qq
+        sudo apt-get update -qqy
         sudo apt-get install -qqy software-properties-common
     fi
+    sudo add-apt-repository -nsy ppa:deluge-team/stable
     sudo apt-add-repository -nsy ppa:philip.scott/pantheon-tweaks
     sudo apt-add-repository -nsy ppa:yunnxx/elementary
-    install_common
+    sudo apt-get update -qqy
+    sudo apt-get upgrade -qqy
+    sudo apt-get install -qqy "${APT_PACKAGES[@]}"
+    sudo apt-get autoremove -qqy
     sudo sh -c "printf '[User]\nSystemAccount=true\n' >/var/lib/AccountsService/users/libvirt-qemu"
     sudo rm -f /etc/xdg/autostart/nm-applet.desktop
     sudo sed -i "s/GNOME;\$/GNOME;Pantheon;/" /etc/xdg/autostart/indicator-application.desktop
     sudo systemctl restart accounts-daemon.service
 }
 
-install_server() {
-    if cmd snap; then
-        sudo snap remove --purge lxd
-        sudo snap remove --purge core18
-        sudo snap remove --purge snapd
-        sudo apt-get purge -qqy snapd
-    fi
-    if cmd cloud-init; then
-        sudo apt-get purge -qqy cloud-init
-    fi
-    install_common
-}
-
-install_common() {
-    sudo apt-get update -qq
-    sudo apt-get upgrade -qqy
-    sudo apt-get install -qqy "${APT_PACKAGES[@]}"
-    sudo apt-get autoremove -qqy
-}
-
-# common apt packages for all setups
 APT_PACKAGES=(
     apt-file
     apt-transport-https
     autoconf
     automake
+    bridge-utils
     build-essential
     cifs-utils
     cmake
     curl
-    dstat
-    git
-    htop
-    libssl-dev
-    nano
-    ncdu
-    pkg-config
-    software-properties-common
-    tig
-    tmux
-    tree
-    wget
-    zip
-    zsh
-)
-
-# additional apt packages for the dev setup
-APT_PACKAGES_DEV=(
-    bridge-utils
+    deluge
+    deluged
+    deluge-console
+    deluge-web
     dh-autoreconf
     dkms
     dmg2img
     docbook-xsl-ns
+    dstat
     gfortran
     gimp
-    gnome-disk-utility
+    git
     gparted
+    htop
     indicator-application
     kazam
     libblas-dev
@@ -92,40 +61,43 @@ APT_PACKAGES_DEV=(
     libreadline-dev
     librsvg2-bin
     libsqlite3-dev
+    libssl-dev
     libtool
     libvirt-dev
     linux-headers-"$(uname -r)"
     llvm
     meld
+    moreutils
+    nano
+    ncdu
     octave
+    openssh-server
     pantheon-tweaks
+    pkg-config
+    python3-dev
+    python3-venv
     qemu
     qemu-kvm
+    samba
+    samba-common
+    software-properties-common
     swig
     texlive-xetex
+    tig
+    tmux
+    tree
     ttf-dejavu-extra
     uml-utilities
     virt-manager
     virt-top
     virtinst
+    wget
     wingpanel-indicator-ayatana
-    wireshark
     xclip
     xsel
     xsltproc
     xz-utils
+    zip
     zlib1g-dev
+    zsh
 )
-
-# additional apt packages for the server setup
-APT_PACKAGES_SERVER=(
-    openssh-server
-    python3-dev
-    python3-venv
-)
-
-if [ "$SETUP" = dev ]; then
-    APT_PACKAGES+=("${APT_PACKAGES_DEV[@]}")
-else
-    APT_PACKAGES+=("${APT_PACKAGES_SERVER[@]}")
-fi

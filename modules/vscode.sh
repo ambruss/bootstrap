@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    cmd code
-}
+OPTIONAL=true
+
+is_installed() { cmd code; }
 
 install() {
     URL="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
     curl -o vscode.deb "$URL"
-    sudo dpkg -i vscode.deb
+    sudo dpkg --install vscode.deb
     for EXT in "${EXTENSIONS[@]}"; do
-        code install-extension "$EXT"
+        code --install-extension "$EXT"
     done
 }
 

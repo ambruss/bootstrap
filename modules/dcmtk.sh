@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-is_installed() {
-    cmd dcmdump
-}
+OPTIONAL=true
+
+is_installed() { cmd dcmdump; }
 
 install() {
-    VER=$(latest DCMTK/dcmtk "DCMTK-$VERSION_RE")
-    URL="https://github.com/DCMTK/dcmtk/archive/DCMTK-$VER.tar.gz"
+    URL=$(gh_tar DCMTK/dcmtk)
     curl "$URL" | tar xz
-    cdir "dcmtk-DCMTK-$VER"
+    cd dcmtk-DCMTK-*
     patch_movescu
     cmake \
         -DBUILD_SHARED_LIBS=1 \
