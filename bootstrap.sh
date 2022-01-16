@@ -40,6 +40,7 @@ CONFIG=$HOME/.config
 PREFIX=$HOME/.local
 VENV=$HOME/.venv
 BIN=$PREFIX/bin
+LIB=$PREFIX/lib
 GO=$PREFIX/go
 
 # logging helpers
@@ -125,8 +126,10 @@ main() {
         test "${INSTALL[0]}" \< "$SKIPTO" && INSTALL=("${INSTALL[@]:1}") || SKIPTO=
     done
     # define and create dirs, extend path
-    mkdir -p "$CACHE" "$CONFIG" "$BIN"
-    export PATH=$BIN:$VENV/bin:$GO/bin:$PATH
+    mkdir -p "$CACHE" "$CONFIG" "$BIN" "$LIB"
+    BINS=$BIN:$VENV/bin:$GO/bin
+    echo "$PATH" | grep -q "$BINS" || PATH=$BINS:$PATH
+    export PATH
     # install selected modules
     on_start
     for SPEC in "${INSTALL[@]}"; do

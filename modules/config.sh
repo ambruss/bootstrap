@@ -16,9 +16,9 @@ install() {
     . "$DOTENV"
     setup_ssh
     setup_git
-    setup_jira
-    setup_ipy
     setup_zsh
+    setup_ipy
+    setup_jira
 }
 
 setup_ssh() {
@@ -69,35 +69,6 @@ setup_git() {
     fi
 }
 
-setup_jira() {
-    test -n "${IPY_STARTUP:-}" || return 0
-    JIRA_FILE=~/.jira.d/config.yml
-    log "Creating jira cli config $JIRA_FILE"
-    mkdir -p "$(dirname "$JIRA_FILE")"
-    touch "$JIRA_FILE"
-    chmod +x "$JIRA_FILE"
-    cat >"$JIRA_FILE" <<EOF
-#!/usr/bin/env bash
-echo "endpoint: $JIRA_HOST"
-echo "user: $JIRA_USER"
-echo "login: $JIRA_MAIL"
-password-source: keyring
-case \$JIRA_OPERATION in
-    list) echo "template: table";;
-esac
-EOF
-    log "You can now run 'jira login' and enter your API token."
-    log "https://id.atlassian.com/manage-profile/security/api-tokens"
-}
-
-setup_ipy() {
-    test -n "${IPY_STARTUP:-}" || return 0
-    IPY_FILE=~/.ipython/profile_default/startup/startup.py
-    log "Creating ipython startup script $IPY_FILE"
-    mkdir -p "$(dirname "$IPY_FILE")"
-    echo "$IPY_STARTUP" >"$IPY_FILE"
-}
-
 setup_zsh() {
     # start with a clean slate
     rm -rf ~/.zshrc ~/.oh-my-zsh
@@ -119,6 +90,35 @@ setup_zsh() {
     touch ~/.z
     # finally, switch shell to zsh if needed
     getent passwd "$(id -u)" | grep -q zsh || sudo chsh -s "$(command -v zsh)" "$USER"
+}
+
+setup_ipy() {
+    test -n "${IPY_STARTUP:-}" || return 0
+    IPY_FILE=~/.ipython/profile_default/startup/startup.py
+    log "Creating ipython startup script $IPY_FILE"
+    mkdir -p "$(dirname "$IPY_FILE")"
+    echo "$IPY_STARTUP" >"$IPY_FILE"
+}
+
+setup_jira() {
+    test -n "${JIRA_HOST:-}" || return 0
+    JIRA_FILE=~/.jira.d/config.yml
+    log "Creating jira cli config $JIRA_FILE"
+    mkdir -p "$(dirname "$JIRA_FILE")"
+    touch "$JIRA_FILE"
+    chmod +x "$JIRA_FILE"
+    cat >"$JIRA_FILE" <<EOF
+#!/usr/bin/env bash
+echo "endpoint: $JIRA_HOST"
+echo "user: $JIRA_USER"
+echo "login: $JIRA_MAIL"
+password-source: keyring
+case \$JIRA_OPERATION in
+    list) echo "template: table";;
+esac
+EOF
+    log "You can now run 'jira login' and enter your API token."
+    log "https://id.atlassian.com/manage-profile/security/api-tokens"
 }
 
 zshrc() {
@@ -180,23 +180,23 @@ export DOCKER_BUILDKIT=1
 export PIPENV_HIDE_EMOJIS=1
 export PIPENV_IGNORE_VIRTUALENVS=1
 
-# shadowing aliases (tip: use escape to invoke the original cmd: `\cat`)
+# to disable shadowing aliases use escape to invoke the original cmd: `\cat`
 is_installed bat   && alias cat="bat"
 is_installed exa   && alias ls="exa -ahl --git --group-directories-first --time-style=long-iso"
 is_installed htop  && alias top="htop"
 is_installed xclip && alias c="xclip"
 is_installed xclip && alias v="xclip -o"
 
-# safe aliases
-alias tree="tree --dirsfirst --sort=version"
 alias g="git"
 alias d="docker"
 alias dc="docker-compose"
 alias k="kubectl"
-alias grep="grep \
+alias sed="sed -E"
+alias grep="grep -P \
     --color=auto \
     --exclude={.coverage} \
     --exclude-dir={.git,.npm,node_modules,htmlcov}"
+alias tree="tree --dirsfirst --sort=version"
 alias help=run-help
 alias tldr="tldr -t base16"
 alias decrypt="gpg"

@@ -16,11 +16,10 @@ install() {
 
 NPM_PACKAGES=(
     "eslint"
-    "fkill"
+    "fkill-cli"
     "jsonlint"
     "markdownlint-cli"
     "puppeteer"
     "speed-test"
-    "standard"
     "tldr"
 )
