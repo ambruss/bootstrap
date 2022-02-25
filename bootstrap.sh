@@ -96,7 +96,6 @@ main() {
     if ! test -d "$DIR/modules"; then
         DIR=$PREFIX/bootstrap
         if [ ! -d "$DIR" ]; then
-            log "Cloning ambruss/bootstrap"
             cmd git || sudo apt-get install -qqy git
             gh_clone ambruss/bootstrap "$DIR"
         fi
@@ -175,7 +174,11 @@ sortver() { grep -Pv "alpha|beta|dev|rc" | sort -rV | uniq; }
 latest() { sortver | head -n1; }
 semver() { echo "${1:-$(cat)}" | grep -Po "$VRE"; }
 web_asset() { curl "$1" | grep -Po "${2:=$VRE}" | sed -E "s|.*($2).*|\1|" | latest; }
-gh_clone() { git clone --depth 1 "https://github.com/$1.git" "${@:2}"; }
+gh_clone() {
+    REPO=https://github.com/$1.git
+    log "git clone $REPO"
+    git clone --quiet --depth 1 "$REPO" "${@:2}"
+}
 gh_tags() { gh_vers "$@" tags; }
 gh_rels() { gh_vers "$@" releases; }
 gh_ver() { gh_vers "$@" | head -n1; }

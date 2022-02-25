@@ -74,18 +74,20 @@ setup_zsh() {
     rm -rf ~/.zshrc ~/.oh-my-zsh
     curl https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
     cd ~/.oh-my-zsh/custom
-    # set up theme and plugins
+    # install theme and plugins
     gh_clone romkatv/powerlevel10k themes/powerlevel10k
+    gh_clone MichaelAquilina/zsh-autoswitch-virtualenv plugins/autoswitch_virtualenv
+    (cd plugins/autoswitch_virtualenv; autoswitch_diff | git apply -;)
     gh_clone zsh-users/zsh-autosuggestions plugins/zsh-autosuggestions
     gh_clone zsh-users/zsh-syntax-highlighting plugins/zsh-syntax-highlighting
-    # set up git-completion
+    # install git-completion
     GITCOMP_URL=https://raw.githubusercontent.com/git/git/master/contrib/completion
     curl -O "$GITCOMP_URL/git-completion.bash"
     curl -o _git "$GITCOMP_URL/git-completion.zsh"
-    # create rc, p10k theme config and profile
+    # create zshrc, profile and p10k config
     zshrc >~/.zshrc.new && mv ~/.zshrc.new ~/.zshrc
-    p10k >~/.p10k.zsh
     profile >profile.zsh
+    p10k >~/.p10k.zsh
     # make sure z history exists (avoid 1st start error)
     touch ~/.z
     # finally, switch shell to zsh if needed
@@ -112,7 +114,7 @@ setup_jira() {
 echo "endpoint: $JIRA_HOST"
 echo "user: $JIRA_USER"
 echo "login: $JIRA_MAIL"
-password-source: keyring
+echo "password-source: keyring"
 case \$JIRA_OPERATION in
     list) echo "template: table";;
 esac
@@ -140,7 +142,7 @@ cat ~/.zshrc \
     | sed_zshrc ZSH_THEME powerlevel10k/powerlevel10k \
     | sed_zshrc DISABLE_UPDATE_PROMPT true \
     | sed_zshrc HIST_STAMPS yyyy-mm-dd \
-    | sed_zshrc plugins "(extract httpie z zsh-autosuggestions zsh-syntax-highlighting)"
+    | sed_zshrc plugins "(extract httpie z autoswitch_virtualenv zsh-autosuggestions zsh-syntax-highlighting)"
 
 # suffix - sourcing p10k
 cat <<'EOF'
@@ -175,6 +177,7 @@ export REPORTMEMORY=10240
 export REPORTTIME=5
 export TIMEFMT="$TIMEFMT mem %M"
 
+export AUTOSWITCH_SILENT=1
 export CLOUDSDK_PYTHON=/usr/bin/python3.6
 export DOCKER_BUILDKIT=1
 export PIPENV_HIDE_EMOJIS=1
@@ -191,13 +194,14 @@ alias g="git"
 alias d="docker"
 alias dc="docker-compose"
 alias k="kubectl"
+alias kc="kubectl"
 alias sed="sed -E"
 alias grep="grep -P \
     --color=auto \
     --exclude={.coverage} \
     --exclude-dir={.git,.npm,node_modules,htmlcov}"
 alias tree="tree --dirsfirst --sort=version"
-alias help=run-help
+alias help="run-help"
 alias tldr="tldr -t base16"
 alias decrypt="gpg"
 alias encrypt="gpg --armor --symmetric"
@@ -269,6 +273,71 @@ EOF
 test -n "${ZSH_PROFILE:-}" || return 0
 echo "# ambruss/bootstrap .env customizations"
 echo "$ZSH_PROFILE"
+}
+
+autoswitch_diff() {
+cat <<'EOF'
+diff --git a/autoswitch_virtualenv.plugin.zsh b/autoswitch_virtualenv.plugin.zsh
+index bbd2308..34cf5d1 100644
+--- a/autoswitch_virtualenv.plugin.zsh
++++ b/autoswitch_virtualenv.plugin.zsh
+@@ -163,45 +163,22 @@ function _activate_pipenv() {
+ # Automatically switch virtualenv when $AUTOSWITCH_FILE file detected
+ function check_venv()
+ {
+-    local file_owner
+-    local file_permissions
+-
+     # Get the $AUTOSWITCH_FILE, scanning parent directories
+     local venv_path="$(_check_path "$PWD")"
+
+     if [[ -n "$venv_path" ]]; then
+-
+-        /usr/bin/stat --version &> /dev/null
+-        if [[ $? -eq 0 ]]; then   # Linux, or GNU stat
+-            file_owner="$(/usr/bin/stat -c %u "$venv_path")"
+-            file_permissions="$(/usr/bin/stat -c %a "$venv_path")"
+-        else                      # macOS, or FreeBSD stat
+-            file_owner="$(/usr/bin/stat -f %u "$venv_path")"
+-            file_permissions="$(/usr/bin/stat -f %OLp "$venv_path")"
+-        fi
+-
+-        if [[ "$file_owner" != "$(id -u)" ]]; then
+-            printf "AUTOSWITCH WARNING: Virtualenv will not be activated\n\n"
+-            printf "Reason: Found a $AUTOSWITCH_FILE file but it is not owned by the current user\n"
+-            printf "Change ownership of ${PURPLE}$venv_path${NORMAL} to ${PURPLE}'$USER'${NORMAL} to fix this\n"
+-        elif ! [[ "$file_permissions" =~ ^[64][04][04]$ ]]; then
+-            printf "AUTOSWITCH WARNING: Virtualenv will not be activated\n\n"
+-            printf "Reason: Found a $AUTOSWITCH_FILE file with weak permission settings ($file_permissions).\n"
+-            printf "Run the following command to fix this: ${PURPLE}\"chmod 600 $venv_path\"${NORMAL}\n"
+-        else
+-            if [[ "$venv_path" == *"/Pipfile" ]]; then
+-                if type "pipenv" > /dev/null && _activate_pipenv; then
+-                    return
+-                fi
+-            elif [[ "$venv_path" == *"/poetry.lock" ]]; then
+-                if type "poetry" > /dev/null && _activate_poetry; then
+-                    return
+-                fi
+-            else
+-                local switch_to="$(<"$venv_path")"
+-                _maybeworkon "$(_virtual_env_dir "$switch_to")" "virtualenv"
++        if [[ "$venv_path" == *"/Pipfile" ]]; then
++            if type "pipenv" > /dev/null && _activate_pipenv; then
++                return
++            fi
++        elif [[ "$venv_path" == *"/poetry.lock" ]]; then
++            if type "poetry" > /dev/null && _activate_poetry; then
+                 return
+             fi
++        else
++            local switch_to="$(<"$venv_path")"
++            _maybeworkon "$(_virtual_env_dir "$switch_to")" "virtualenv"
++            return
+         fi
+     fi
+
+EOF
 }
 
 p10k() {
