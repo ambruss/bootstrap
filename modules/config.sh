@@ -278,9 +278,18 @@ echo "$ZSH_PROFILE"
 autoswitch_diff() {
 cat <<'EOF'
 diff --git a/autoswitch_virtualenv.plugin.zsh b/autoswitch_virtualenv.plugin.zsh
-index bbd2308..34cf5d1 100644
+index bbd2308..c00177c 100644
 --- a/autoswitch_virtualenv.plugin.zsh
 +++ b/autoswitch_virtualenv.plugin.zsh
+@@ -64,7 +64,7 @@ function _get_venv_type() {
+ function _get_venv_name() {
+     local venv_dir="$1"
+     local venv_type="$2"
+-    local venv_name="$(basename "$venv_dir")"
++    local venv_name="$(realpath "$venv_dir")"
+
+     # clear pipenv from the extra identifiers at the end
+     if [[ "$venv_type" == "pipenv" ]]; then
 @@ -163,45 +163,22 @@ function _activate_pipenv() {
  # Automatically switch virtualenv when $AUTOSWITCH_FILE file detected
  function check_venv()
