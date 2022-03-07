@@ -1,24 +1,44 @@
 #!/usr/bin/env bash
 
-is_installed() { false; }
+is_installed() { test -d ~/.oh-my-zsh; }
 
 install() {
     DOTENV=$DIR/.env
-    if ! test -f "$DOTENV"; then
-        log "Initializing $DOTENV"
-        sleep 2
-        cp "$DOTENV.sample" "$DOTENV"
-        "${EDITOR:-nano}" "$DOTENV"
-    fi
+    test -f "$DOTENV" || cp "$DOTENV.sample" "$DOTENV"
     chmod 600 "$DOTENV"
     log "Loading $DOTENV"
     # shellcheck disable=SC1090
     . "$DOTENV"
+    setup_zsh
     setup_ssh
     setup_git
-    setup_zsh
     setup_ipy
     setup_jira
+}
+
+setup_zsh() {
+    # start with a clean slate
+    rm -rf ~/.zshrc ~/.oh-my-zsh
+    curl https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+    cd ~/.oh-my-zsh/custom
+    # install theme and plugins
+    gh_clone romkatv/powerlevel10k themes/powerlevel10k
+    gh_clone MichaelAquilina/zsh-autoswitch-virtualenv plugins/autoswitch_virtualenv
+    (cd plugins/autoswitch_virtualenv; autoswitch_diff | git apply -;)
+    gh_clone zsh-users/zsh-autosuggestions plugins/zsh-autosuggestions
+    gh_clone zsh-users/zsh-syntax-highlighting plugins/zsh-syntax-highlighting
+    # install git-completion
+    GITCOMP_URL=https://raw.githubusercontent.com/git/git/master/contrib/completion
+    curl -O "$GITCOMP_URL/git-completion.bash"
+    curl -o _git "$GITCOMP_URL/git-completion.zsh"
+    # create zshrc, profile and p10k config
+    zshrc >~/.zshrc.new && mv ~/.zshrc.new ~/.zshrc
+    profile >profile.zsh
+    p10k >~/.p10k.zsh
+    # make sure z history exists (avoid 1st start error)
+    touch ~/.z
+    # finally, switch shell to zsh if needed
+    getent passwd "$(id -u)" | grep -q zsh || sudo chsh -s "$(command -v zsh)" "$USER"
 }
 
 setup_ssh() {
@@ -69,31 +89,6 @@ setup_git() {
         gitconf --bool diff-so-fancy.changeHunkIndicators false
         gitconf --bool diff-so-fancy.stripLeadingSymbols false
     fi
-}
-
-setup_zsh() {
-    # start with a clean slate
-    rm -rf ~/.zshrc ~/.oh-my-zsh
-    curl https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
-    cd ~/.oh-my-zsh/custom
-    # install theme and plugins
-    gh_clone romkatv/powerlevel10k themes/powerlevel10k
-    gh_clone MichaelAquilina/zsh-autoswitch-virtualenv plugins/autoswitch_virtualenv
-    (cd plugins/autoswitch_virtualenv; autoswitch_diff | git apply -;)
-    gh_clone zsh-users/zsh-autosuggestions plugins/zsh-autosuggestions
-    gh_clone zsh-users/zsh-syntax-highlighting plugins/zsh-syntax-highlighting
-    # install git-completion
-    GITCOMP_URL=https://raw.githubusercontent.com/git/git/master/contrib/completion
-    curl -O "$GITCOMP_URL/git-completion.bash"
-    curl -o _git "$GITCOMP_URL/git-completion.zsh"
-    # create zshrc, profile and p10k config
-    zshrc >~/.zshrc.new && mv ~/.zshrc.new ~/.zshrc
-    profile >profile.zsh
-    p10k >~/.p10k.zsh
-    # make sure z history exists (avoid 1st start error)
-    touch ~/.z
-    # finally, switch shell to zsh if needed
-    getent passwd "$(id -u)" | grep -q zsh || sudo chsh -s "$(command -v zsh)" "$USER"
 }
 
 setup_ipy() {
