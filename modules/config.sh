@@ -23,7 +23,7 @@ setup_zsh() {
     cd ~/.oh-my-zsh/custom
     # install theme and plugins
     gh_clone romkatv/powerlevel10k themes/powerlevel10k
-    gh_clone MichaelAquilina/zsh-autoswitch-virtualenv plugins/autoswitch_virtualenv
+    gh_clone MichaelAquilina/zsh-autoswitch-virtualenv plugins/autoswitch_virtualenv -b 3.5.0
     (cd plugins/autoswitch_virtualenv; autoswitch_diff | git apply -;)
     gh_clone zsh-users/zsh-autosuggestions plugins/zsh-autosuggestions
     gh_clone zsh-users/zsh-syntax-highlighting plugins/zsh-syntax-highlighting
@@ -275,7 +275,7 @@ echo "$ZSH_PROFILE"
 autoswitch_diff() {
 cat <<'EOF'
 diff --git a/autoswitch_virtualenv.plugin.zsh b/autoswitch_virtualenv.plugin.zsh
-index bbd2308..c00177c 100644
+index 11a1c06..30f013a 100644
 --- a/autoswitch_virtualenv.plugin.zsh
 +++ b/autoswitch_virtualenv.plugin.zsh
 @@ -64,7 +64,7 @@ function _get_venv_type() {
@@ -287,7 +287,7 @@ index bbd2308..c00177c 100644
 
      # clear pipenv from the extra identifiers at the end
      if [[ "$venv_type" == "pipenv" ]]; then
-@@ -163,45 +163,22 @@ function _activate_pipenv() {
+@@ -163,50 +163,27 @@ function _activate_pipenv() {
  # Automatically switch virtualenv when $AUTOSWITCH_FILE file detected
  function check_venv()
  {
@@ -308,11 +308,11 @@ index bbd2308..c00177c 100644
 -            file_permissions="$(/usr/bin/stat -f %OLp "$venv_path")"
 -        fi
 -
--        if [[ "$file_owner" != "$(id -u)" ]]; then
+-        if [[ -f "$venv_path" ]] && [[ "$file_owner" != "$(id -u)" ]]; then
 -            printf "AUTOSWITCH WARNING: Virtualenv will not be activated\n\n"
 -            printf "Reason: Found a $AUTOSWITCH_FILE file but it is not owned by the current user\n"
 -            printf "Change ownership of ${PURPLE}$venv_path${NORMAL} to ${PURPLE}'$USER'${NORMAL} to fix this\n"
--        elif ! [[ "$file_permissions" =~ ^[64][04][04]$ ]]; then
+-        elif [[ -f "$venv_path" ]] && ! [[ "$file_permissions" =~ ^[64][04][04]$ ]]; then
 -            printf "AUTOSWITCH WARNING: Virtualenv will not be activated\n\n"
 -            printf "Reason: Found a $AUTOSWITCH_FILE file with weak permission settings ($file_permissions).\n"
 -            printf "Run the following command to fix this: ${PURPLE}\"chmod 600 $venv_path\"${NORMAL}\n"
@@ -325,20 +325,29 @@ index bbd2308..c00177c 100644
 -                if type "poetry" > /dev/null && _activate_poetry; then
 -                    return
 -                fi
--            else
+-            # standard use case: $venv_path is a file containing a virtualenv name
+-            elif [[ -f "$venv_path" ]]; then
 -                local switch_to="$(<"$venv_path")"
 -                _maybeworkon "$(_virtual_env_dir "$switch_to")" "virtualenv"
 +        if [[ "$venv_path" == *"/Pipfile" ]]; then
 +            if type "pipenv" > /dev/null && _activate_pipenv; then
-+                return
+                 return
+-            # $venv_path actually is itself a virtualenv
+-            elif [[ -d "$venv_path" ]] && [[ -f "$venv_path/bin/activate" ]]; then
+-                _maybeworkon "$venv_path" "virtualenv"
 +            fi
 +        elif [[ "$venv_path" == *"/poetry.lock" ]]; then
 +            if type "poetry" > /dev/null && _activate_poetry; then
                  return
              fi
-+        else
++        # standard use case: $venv_path is a file containing a virtualenv name
++        elif [[ -f "$venv_path" ]]; then
 +            local switch_to="$(<"$venv_path")"
 +            _maybeworkon "$(_virtual_env_dir "$switch_to")" "virtualenv"
++            return
++        # $venv_path actually is itself a virtualenv
++        elif [[ -d "$venv_path" ]] && [[ -f "$venv_path/bin/activate" ]]; then
++            _maybeworkon "$venv_path" "virtualenv"
 +            return
          fi
      fi
