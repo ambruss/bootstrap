@@ -56,6 +56,7 @@ APT_PACKAGES=(
     libhdf5-103
     libhdf5-dev
     liblapack-dev
+    libminizip1
     libncurses5-dev
     libncursesw5-dev
     libreadline-dev
