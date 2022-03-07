@@ -42,10 +42,12 @@ setup_git() {
 
     gitconf help.autocorrect 1
 
-    gitconf alias.log   "log --abbrev-commit --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
-    gitconf alias.diff  "diff --no-color --no-pager"
-    gitconf alias.undo  "reset HEAD~1 --mixed"
-    gitconf alias.alias "config --get-regexp ^alias\. | sed -E 's/^alias.//;s/ /\t= /'"
+    gitconf alias.alias   "!git config --get-regexp ^alias\. | sed -E 's/^alias.//;s/ /\t= /'"
+    gitconf alias.diff    "diff --no-color --no-pager"
+    gitconf alias.log     "log --abbrev-commit --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
+    gitconf alias.press   "!git reset \$(git commit-tree HEAD^{tree} -m \"${1:-Initial commit}\")"
+    gitconf alias.undo    "reset HEAD~1 --mixed"
+    gitconf alias.unstage "reset HEAD"
 
     gitconf color.ui true
     gitconf color.diff-highlight.oldNormal    "red bold"
